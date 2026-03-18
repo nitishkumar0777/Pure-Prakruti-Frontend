@@ -15,6 +15,7 @@ import { selectIsAuthenticated } from './features/calculator/calculatorSlice';
 import { useSelector } from 'react-redux';
 import TermsScreen from './features/calculator/TermsScreen ';
 import VehicleRegistrationScreen from './features/calculator/Vehicleregistrationscreen';
+import VehicleDashboard from './features/calculator/Vehicledashboard';
 
 const Stack = createNativeStackNavigator();
 
@@ -59,6 +60,7 @@ export default () => {
               {/* ✅ VehicleRegistration here — signup ke baad
                   isAuthenticated true hone par bhi navigate ho sake */}
               <Stack.Screen name="VehicleRegistration"  component={VehicleRegistrationScreen} />
+              <Stack.Screen name="Dashboard" component={VehicleDashboard} />
             </>
           ) : (
             <>

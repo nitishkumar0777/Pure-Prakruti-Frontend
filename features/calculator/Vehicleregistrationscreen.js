@@ -133,10 +133,10 @@ const VehicleRegistrationScreen = () => {
 
       if (response.ok && data.success) {
         Alert.alert("Success", "Vehicle register ho gaya!", [
-          { text: "OK", onPress: () => navigation.navigate("Calculator") },
+          { text: "OK", onPress: () => navigation.navigate("Dashboard") },
         ]);
       } else if (response.status === 409) {
-        navigation.navigate("Calculator");
+        navigation.navigate("Dashboard");
       } else {
         Alert.alert("Error", data.error || "Vehicle registration fail ho gayi.");
       }
