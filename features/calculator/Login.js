@@ -55,20 +55,25 @@ const App = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      setIsLoading(false);
-      navigation.navigate('Calculator');
-    } else if (error) {
-      setIsLoading(false);
-      Alert.alert('Error', error);
-    }
-  }, [isAuthenticated, error]);
+useEffect(() => {
+  if (isAuthenticated) {
+    setIsLoading(false);
+    navigation.navigate('Calculator');
+  } else if (error) {
+    setIsLoading(false);
+    const errorMsg = typeof error === 'string' ? error : JSON.stringify(error);
+    Alert.alert('Error', errorMsg);
+  }
+}, [isAuthenticated, error]);
 
-  const handleSubmit = async (values) => {
-    setIsLoading(true);
-    dispatch(loginAsync(values));
-  };
+
+const handleSubmit = async (values) => {
+  setIsLoading(true);
+  dispatch(loginAsync({
+    mobileNumber: values.mobileNumber.trim(),
+    pin: values.pin.trim()
+  }));
+};
 
   return (
     <View style={styles.mainContainer}>

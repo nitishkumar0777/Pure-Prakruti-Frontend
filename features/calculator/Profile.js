@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from "react";
 import {
   ImageBackground,
   KeyboardAvoidingView,
@@ -6,62 +6,101 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
-import { useSelector } from 'react-redux';
-import { selectUserInfo } from './calculatorSlice';
+  Image,
+  Platform,
+  SafeAreaView,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import { useSelector, useDispatch } from "react-redux";
+import { selectUserInfo, logout } from "./calculatorSlice";
 
 const ProfileScreen = () => {
   const userInfo = useSelector(selectUserInfo);
+  const dispatch = useDispatch();
+
+  // ✅ Use userInfo directly (not userInfo?.data?.data)
+  const user = userInfo || {};
+
+  useEffect(() => {
+    console.log("📌 Full User Info:", userInfo);
+    console.log("✅ Parsed User:", user);
+  }, [userInfo]);
+
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Logout", style: "destructive", onPress: () => dispatch(logout()) },
+    ]);
+  };
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <SafeAreaView style={styles.container}>
       <ImageBackground
-        source={require('../../assets/images/Pure Prakriti bg img.jpg')}
+        source={require("../../assets/images/Pure Prakriti bg img.jpg")}
         resizeMode="cover"
-        className="flex-1 items-center"
+        style={styles.imageBackground}
       >
-        {/* Overlay */}
         <View style={styles.overlay} />
 
-               <View style={styles.headerContainer}>
-                  <Text style={styles.headerText}>Profile</Text>
-                </View>
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Profile</Text>
+        </View>
 
-        {/* Main Content */}
-        <KeyboardAvoidingView className="flex-1 w-full mt-6">
-          <ScrollView contentContainerStyle={{ alignItems: 'center', paddingBottom: 40 }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={styles.contentContainer}
+        >
+          <ScrollView contentContainerStyle={styles.scrollContent}>
             {/* Profile Card */}
-            <View style={styles.card}>
+            <View style={styles.profileCard}>
+              {/* Avatar */}
               <View style={styles.avatarContainer}>
-                <FontAwesome name="user-o" size={40} color="black" />
+                {user?.profileImage?.[0] ? (
+                  <Image
+                    source={{ uri: user.profileImage[0] }}
+                    style={styles.avatarImage}
+                  />
+                ) : (
+                  <FontAwesome name="user-o" size={40} color="black" />
+                )}
               </View>
-              <Text style={styles.nameText}>{userInfo ? userInfo.userName : 'Name'}</Text>
+
+              {/* Main Info */}
+              <Text style={styles.nameText}>{user.userName || "Name"}</Text>
               <Text style={styles.mobileText}>
-                {userInfo ? `No. :- ${userInfo.mobileNumber}` : 'Mobile Number'}
+                {user.mobileNumber ? `Mob No. :- ${user.mobileNumber}` : "Mobile Number"}
               </Text>
+
+              {/* Other Details */}
+              <View style={styles.detailsContainer}>
+                <Text style={styles.detailItem}>
+                  <Text style={styles.label}> ID: </Text>
+                  {user.userId || "-"}
+                </Text>
+              </View>
             </View>
 
-            {/* Optional Email / Additional Info */}
-            {userInfo?.email && (
-              <View style={styles.card}>
-                <Text style={styles.labelText}>Email</Text>
-                <Text style={styles.infoText}>{userInfo.email}</Text>
-              </View>
-            )}
+            {/* Logout */}
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
           </ScrollView>
         </KeyboardAvoidingView>
       </ImageBackground>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#f0f0f0" },
+  imageBackground: { flex: 1, alignItems: "center" },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(247, 238, 243, 0.6)',
+    backgroundColor: "rgba(247, 238, 243, 0.6)",
   },
-    // Header
   headerContainer: {
     width: "100%",
     height: "15%",
@@ -70,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    elevation: 5,
+    elevation: 8,
     shadowColor: "#000",
     shadowOpacity: 0.3,
     shadowRadius: 6,
@@ -82,54 +121,1154 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     letterSpacing: 1,
   },
-  card: {
-    width: '85%',
-    backgroundColor: '#fff',
+  contentContainer: {
+    flex: 1,
+    width: "100%",
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  scrollContent: { alignItems: "center", paddingBottom: 60 },
+
+  // 🔥 3D Card
+  profileCard: {
+    width: "90%",
+    backgroundColor: "#fff",
     borderRadius: 20,
-    paddingVertical: 20,
-    paddingHorizontal: 15,
+    padding: 20,
     marginVertical: 15,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 10, // for Android shadow
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 12,
+    transform: [{ perspective: 1000 }, { scale: 1.02 }],
   },
   avatarContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#f5f5f5",
     padding: 20,
     borderRadius: 50,
     marginBottom: 15,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 8,
   },
-  nameText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
+  avatarImage: { width: 70, height: 70, borderRadius: 35 },
+  nameText: { fontSize: 22, fontWeight: "bold", color: "#333", marginBottom: 5 },
+  mobileText: { fontSize: 18, color: "#666", marginBottom: 15 },
+
+  detailsContainer: { width: "100%", marginTop: 10, alignItems: "center" },
+  detailItem: { fontSize: 16, color: "#333", marginBottom: 8 },
+  label: { fontWeight: "600", color: "#555" },
+
+  logoutButton: {
+    marginTop: 20,
+    backgroundColor: "#b22222",
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
-  mobileText: {
-    fontSize: 18,
-    color: '#666',
-  },
-  labelText: {
-    fontSize: 16,
-    color: '#888',
-    marginBottom: 5,
-  },
-  infoText: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#333',
-  },
+  logoutText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
 });
 
 export default ProfileScreen;
+
+
+
+// import React, { useEffect } from "react";
+// import {
+//   ImageBackground,
+//   KeyboardAvoidingView,
+//   ScrollView,
+//   StyleSheet,
+//   Text,
+//   View,
+//   Image,
+//   Platform,
+//   SafeAreaView,
+//   TouchableOpacity,
+//   Alert,
+// } from "react-native";
+// import { FontAwesome } from "@expo/vector-icons";
+// import { useSelector, useDispatch } from "react-redux";
+// import { selectUserInfo, logout } from "./calculatorSlice";
+
+// const ProfileScreen = () => {
+//   const userInfo = useSelector(selectUserInfo);
+//   const dispatch = useDispatch();
+
+//   const user = userInfo?.data?.data || {};
+
+//   useEffect(() => {
+//     console.log("📌 Full User Info:", userInfo);
+//     console.log("✅ Parsed User:", user);
+//   }, [userInfo]);
+
+//   const handleLogout = () => {
+//     Alert.alert("Logout", "Are you sure you want to logout?", [
+//       { text: "Cancel", style: "cancel" },
+//       { text: "Logout", style: "destructive", onPress: () => dispatch(logout()) },
+//     ]);
+//   };
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ImageBackground
+//         source={require("../../assets/images/Pure Prakriti bg img.jpg")}
+//         resizeMode="cover"
+//         style={styles.imageBackground}
+//       >
+//         <View style={styles.overlay} />
+
+//         {/* Header */}
+//         <View style={styles.headerContainer}>
+//           <Text style={styles.headerText}>Profile</Text>
+//         </View>
+
+//         <KeyboardAvoidingView
+//           behavior={Platform.OS === "ios" ? "padding" : undefined}
+//           style={styles.contentContainer}
+//         >
+//           <ScrollView contentContainerStyle={styles.scrollContent}>
+//             {/* Single Profile Card */}
+//             <View style={styles.profileCard}>
+//               {/* Avatar */}
+//               <View style={styles.avatarContainer}>
+//                 {user?.profileImage?.[0] ? (
+//                   <Image
+//                     source={{ uri: user.profileImage[0] }}
+//                     style={styles.avatarImage}
+//                   />
+//                 ) : (
+//                   <FontAwesome name="user-o" size={40} color="black" />
+//                 )}
+//               </View>
+
+//               {/* Main Info */}
+//               <Text style={styles.nameText}>{user.userName || "Name"}</Text>
+//               <Text style={styles.mobileText}>
+//                 {user.mobileNumber ? `Mob No. :- ${user.mobileNumber}` : "Mobile Number"}
+//               </Text>
+
+//               {/* Other Details */}
+//               <View style={styles.detailsContainer}>
+//                 <Text style={styles.detailItem}>
+//                   <Text style={styles.label}> ID: </Text>
+//                   {user.userId || "-"}
+//                 </Text>
+//                 {/* Hide token by default */}
+//                 {/* <Text style={styles.detailItem}>
+//                   <Text style={styles.label}>Token: </Text>
+//                   {user.token}
+//                 </Text> */}
+//               </View>
+//             </View>
+
+//             {/* Logout */}
+//             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+//               <Text style={styles.logoutText}>Logout</Text>
+//             </TouchableOpacity>
+//           </ScrollView>
+//         </KeyboardAvoidingView>
+//       </ImageBackground>
+//     </SafeAreaView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: "#f0f0f0" },
+//   imageBackground: { flex: 1, alignItems: "center" },
+//   overlay: {
+//     ...StyleSheet.absoluteFillObject,
+//     backgroundColor: "rgba(247, 238, 243, 0.6)",
+//   },
+//   headerContainer: {
+//     width: "100%",
+//     height: "15%",
+//     backgroundColor: "#006400",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     borderBottomLeftRadius: 20,
+//     borderBottomRightRadius: 20,
+//     elevation: 8,
+//     shadowColor: "#000",
+//     shadowOpacity: 0.3,
+//     shadowRadius: 6,
+//     shadowOffset: { width: 0, height: 3 },
+//   },
+//   headerText: {
+//     color: "#fff",
+//     fontSize: 26,
+//     fontWeight: "bold",
+//     letterSpacing: 1,
+//   },
+//   contentContainer: {
+//     flex: 1,
+//     width: "100%",
+//     marginTop: 20,
+//     paddingHorizontal: 20,
+//   },
+//   scrollContent: { alignItems: "center", paddingBottom: 60 },
+
+//   // 🔥 Single 3D Card
+//   profileCard: {
+//     width: "90%",
+//     backgroundColor: "#fff",
+//     borderRadius: 20,
+//     padding: 20,
+//     marginVertical: 15,
+//     alignItems: "center",
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 10 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 12,
+//     elevation: 12,
+//     transform: [{ perspective: 1000 }, { scale: 1.02 }], // 3D effect
+//   },
+//   avatarContainer: {
+//     backgroundColor: "#f5f5f5",
+//     padding: 20,
+//     borderRadius: 50,
+//     marginBottom: 15,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 6,
+//     elevation: 8,
+//   },
+//   avatarImage: { width: 70, height: 70, borderRadius: 35 },
+//   nameText: { fontSize: 22, fontWeight: "bold", color: "#333", marginBottom: 5 },
+//   mobileText: { fontSize: 18, color: "#666", marginBottom: 15 },
+
+//   detailsContainer: { width: "100%", marginTop: 10, alignItems: "center", },
+//   detailItem: { fontSize: 16, color: "#333", marginBottom: 8 },
+//   label: { fontWeight: "600", color: "#555" },
+
+//   logoutButton: {
+//     marginTop: 20,
+//     backgroundColor: "#b22222",
+//     paddingVertical: 15,
+//     paddingHorizontal: 40,
+//     borderRadius: 30,
+//     elevation: 6,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 3 },
+//     shadowOpacity: 0.3,
+//     shadowRadius: 5,
+//   },
+//   logoutText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+// });
+
+// export default ProfileScreen;
+
+
+// import React, { useEffect } from "react";
+// import {
+//   ImageBackground,
+//   KeyboardAvoidingView,
+//   ScrollView,
+//   StyleSheet,
+//   Text,
+//   View,
+//   Image,
+//   Platform,
+//   SafeAreaView,
+//   TouchableOpacity,
+//   Alert,
+// } from "react-native";
+// import { FontAwesome } from "@expo/vector-icons";
+// import { useSelector, useDispatch } from "react-redux";
+// import { selectUserInfo, logout } from "./calculatorSlice";
+
+// const ProfileScreen = () => {
+//   const userInfo = useSelector(selectUserInfo);
+//   const dispatch = useDispatch();
+
+//   // ✅ unwrap nested user data
+//   const user = userInfo?.data?.data || {};
+
+//   // 🔥 Log both full & parsed user
+//   useEffect(() => {
+//     console.log("📌 Full User Info:", userInfo);
+//     console.log("✅ Parsed User:", user);
+//   }, [userInfo]);
+
+//   const handleLogout = () => {
+//     Alert.alert("Logout", "Are you sure you want to logout?", [
+//       { text: "Cancel", style: "cancel" },
+//       { text: "Logout", style: "destructive", onPress: () => dispatch(logout()) },
+//     ]);
+//   };
+
+//   // Fields to display (Token hidden by default)
+//   const fields = [
+//     { label: "User Name", value: user.userName },
+//     { label: "Base Username", value: user.baseUsername },
+//     { label: "Mobile Number", value: user.mobileNumber },
+//     { label: "User ID", value: user.userId },
+//     // { label: "Token", value: user.token }, // uncomment only if you want to see token
+//   ].filter((item) => item.value);
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ImageBackground
+//         source={require("../../assets/images/Pure Prakriti bg img.jpg")}
+//         resizeMode="cover"
+//         style={styles.imageBackground}
+//       >
+//         {/* Overlay */}
+//         <View style={styles.overlay} />
+
+//         {/* Header */}
+//         <View style={styles.headerContainer}>
+//           <Text style={styles.headerText}>Profile</Text>
+//         </View>
+
+//         {/* Main Content */}
+//         <KeyboardAvoidingView
+//           behavior={Platform.OS === "ios" ? "padding" : undefined}
+//           style={styles.contentContainer}
+//         >
+//           <ScrollView contentContainerStyle={styles.scrollContent}>
+//             {/* Profile Card */}
+//             <View style={styles.card}>
+//               <View style={styles.avatarContainer}>
+//                 {user?.profileImage?.[0] ? (
+//                   <Image
+//                     source={{ uri: user.profileImage[0] }}
+//                     style={styles.avatarImage}
+//                   />
+//                 ) : (
+//                   <FontAwesome name="user-o" size={40} color="black" />
+//                 )}
+//               </View>
+//               <Text style={styles.nameText}>{user.userName || "Name"}</Text>
+//               <Text style={styles.mobileText}>
+//                 {user.mobileNumber ? `No. :- ${user.mobileNumber}` : "Mobile Number"}
+//               </Text>
+//             </View>
+
+//             {/* Dynamic Info Cards */}
+//             {fields.map((item, index) => (
+//               <View key={index} style={styles.card}>
+//                 <Text style={styles.labelText}>{item.label}</Text>
+//                 <Text style={styles.infoText}>{item.value}</Text>
+//               </View>
+//             ))}
+
+//             {/* Logout Button */}
+//             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+//               <Text style={styles.logoutText}>Logout</Text>
+//             </TouchableOpacity>
+//           </ScrollView>
+//         </KeyboardAvoidingView>
+//       </ImageBackground>
+//     </SafeAreaView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: "#f0f0f0" },
+//   imageBackground: { flex: 1, alignItems: "center" },
+//   overlay: {
+//     ...StyleSheet.absoluteFillObject,
+//     backgroundColor: "rgba(247, 238, 243, 0.6)",
+//   },
+//   headerContainer: {
+//     width: "100%",
+//     height: "15%",
+//     backgroundColor: "#006400",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     borderBottomLeftRadius: 20,
+//     borderBottomRightRadius: 20,
+//     elevation: 5,
+//     shadowColor: "#000",
+//     shadowOpacity: 0.3,
+//     shadowRadius: 6,
+//     shadowOffset: { width: 0, height: 3 },
+//   },
+//   headerText: {
+//     color: "#fff",
+//     fontSize: 26,
+//     fontWeight: "bold",
+//     letterSpacing: 1,
+//   },
+//   contentContainer: {
+//     flex: 1,
+//     width: "100%",
+//     marginTop: 20,
+//     paddingHorizontal: 20,
+//   },
+//   scrollContent: { alignItems: "center", paddingBottom: 60 },
+//   card: {
+//     width: "85%",
+//     backgroundColor: "#fff",
+//     borderRadius: 20,
+//     paddingVertical: 20,
+//     paddingHorizontal: 15,
+//     marginVertical: 10,
+//     alignItems: "center",
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 6 },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 10,
+//     elevation: 10,
+//   },
+//   avatarContainer: {
+//     backgroundColor: "#fff",
+//     padding: 20,
+//     borderRadius: 50,
+//     marginBottom: 15,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 6,
+//     elevation: 8,
+//   },
+//   avatarImage: { width: 60, height: 60, borderRadius: 30 },
+//   nameText: { fontSize: 22, fontWeight: "bold", color: "#333", marginBottom: 5 },
+//   mobileText: { fontSize: 18, color: "#666" },
+//   labelText: { fontSize: 16, color: "#888", marginBottom: 5 },
+//   infoText: { fontSize: 18, fontWeight: "500", color: "#333" },
+
+//   logoutButton: {
+//     marginTop: 20,
+//     backgroundColor: "#b22222",
+//     paddingVertical: 15,
+//     paddingHorizontal: 40,
+//     borderRadius: 30,
+//     elevation: 6,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 3 },
+//     shadowOpacity: 0.3,
+//     shadowRadius: 5,
+//   },
+//   logoutText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+// });
+
+// export default ProfileScreen;
+
+
+// import React, { useEffect } from "react";
+// import {
+//   ImageBackground,
+//   KeyboardAvoidingView,
+//   ScrollView,
+//   StyleSheet,
+//   Text,
+//   View,
+//   Image,
+//   Platform,
+//   SafeAreaView,
+//   TouchableOpacity,
+//   Alert,
+// } from "react-native";
+// import { FontAwesome } from "@expo/vector-icons";
+// import { useSelector, useDispatch } from "react-redux";
+// import { selectUserInfo, logout } from "./calculatorSlice"; // ✅ add logout action
+
+// const ProfileScreen = () => {
+//   const userInfo = useSelector(selectUserInfo);
+//   const dispatch = useDispatch();
+
+//   // 🔥 Log full user info when component loads
+//   useEffect(() => {
+//     console.log("📌 Full User Info:", userInfo);
+//   }, [userInfo]);
+
+//   const handleLogout = () => {
+//     Alert.alert("Logout", "Are you sure you want to logout?", [
+//       { text: "Cancel", style: "cancel" },
+//       { text: "Logout", style: "destructive", onPress: () => dispatch(logout()) },
+//     ]);
+//   };
+
+//   // Fields to display
+//   const fields = [
+//     { label: "User Name", value: userInfo?.userName },
+//     { label: "Mobile Number", value: userInfo?.mobileNumber },
+//     { label: "Email", value: userInfo?.email },
+//     { label: "Account Type", value: userInfo?.type },
+//     { label: "PAN Number", value: userInfo?.panNumber },
+//     { label: "Aadhar Number", value: userInfo?.aadharNumber },
+//     { label: "Created At", value: userInfo?.createdAt },
+//     { label: "Updated At", value: userInfo?.updatedAt },
+//   ].filter((item) => item.value);
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ImageBackground
+//         source={require("../../assets/images/Pure Prakriti bg img.jpg")}
+//         resizeMode="cover"
+//         style={styles.imageBackground}
+//       >
+//         {/* Overlay */}
+//         <View style={styles.overlay} />
+
+//         {/* Header */}
+//         <View style={styles.headerContainer}>
+//           <Text style={styles.headerText}>Profile</Text>
+//         </View>
+
+//         {/* Main Content */}
+//         <KeyboardAvoidingView
+//           behavior={Platform.OS === "ios" ? "padding" : undefined}
+//           style={styles.contentContainer}
+//         >
+//           <ScrollView contentContainerStyle={styles.scrollContent}>
+//             {/* Profile Card */}
+//             <View style={styles.card}>
+//               <View style={styles.avatarContainer}>
+//                 {userInfo?.profileImage?.[0] ? (
+//                   <Image
+//                     source={{ uri: userInfo.profileImage[0] }}
+//                     style={styles.avatarImage}
+//                   />
+//                 ) : (
+//                   <FontAwesome name="user-o" size={40} color="black" />
+//                 )}
+//               </View>
+//               <Text style={styles.nameText}>
+//                 {userInfo?.userName || "Name"}
+//               </Text>
+//               <Text style={styles.mobileText}>
+//                 {userInfo?.mobileNumber
+//                   ? `No. :- ${userInfo.mobileNumber}`
+//                   : "Mobile Number"}
+//               </Text>
+//             </View>
+
+//             {/* Dynamic Info Cards */}
+//             {fields.map((item, index) => {
+//               // 🔥 Log each field
+//               console.log(`📌 ${item.label}:`, item.value);
+
+//               return (
+//                 <View key={index} style={styles.card}>
+//                   <Text style={styles.labelText}>{item.label}</Text>
+//                   <Text style={styles.infoText}>{item.value}</Text>
+//                 </View>
+//               );
+//             })}
+
+//             {/* Logout Button */}
+//             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+//               <Text style={styles.logoutText}>Logout</Text>
+//             </TouchableOpacity>
+//           </ScrollView>
+//         </KeyboardAvoidingView>
+//       </ImageBackground>
+//     </SafeAreaView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: "#f0f0f0" },
+//   imageBackground: { flex: 1, alignItems: "center" },
+//   overlay: {
+//     ...StyleSheet.absoluteFillObject,
+//     backgroundColor: "rgba(247, 238, 243, 0.6)",
+//   },
+//   headerContainer: {
+//     width: "100%",
+//     height: "15%",
+//     backgroundColor: "#006400",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     borderBottomLeftRadius: 20,
+//     borderBottomRightRadius: 20,
+//     elevation: 5,
+//     shadowColor: "#000",
+//     shadowOpacity: 0.3,
+//     shadowRadius: 6,
+//     shadowOffset: { width: 0, height: 3 },
+//   },
+//   headerText: {
+//     color: "#fff",
+//     fontSize: 26,
+//     fontWeight: "bold",
+//     letterSpacing: 1,
+//   },
+//   contentContainer: {
+//     flex: 1,
+//     width: "100%",
+//     marginTop: 20,
+//     paddingHorizontal: 20,
+//   },
+//   scrollContent: { alignItems: "center", paddingBottom: 60 },
+//   card: {
+//     width: "85%",
+//     backgroundColor: "#fff",
+//     borderRadius: 20,
+//     paddingVertical: 20,
+//     paddingHorizontal: 15,
+//     marginVertical: 10,
+//     alignItems: "center",
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 6 },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 10,
+//     elevation: 10,
+//   },
+//   avatarContainer: {
+//     backgroundColor: "#fff",
+//     padding: 20,
+//     borderRadius: 50,
+//     marginBottom: 15,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 6,
+//     elevation: 8,
+//   },
+//   avatarImage: { width: 60, height: 60, borderRadius: 30 },
+//   nameText: { fontSize: 22, fontWeight: "bold", color: "#333", marginBottom: 5 },
+//   mobileText: { fontSize: 18, color: "#666" },
+//   labelText: { fontSize: 16, color: "#888", marginBottom: 5 },
+//   infoText: { fontSize: 18, fontWeight: "500", color: "#333" },
+
+//   logoutButton: {
+//     marginTop: 20,
+//     backgroundColor: "#b22222",
+//     paddingVertical: 15,
+//     paddingHorizontal: 40,
+//     borderRadius: 30,
+//     elevation: 6,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 3 },
+//     shadowOpacity: 0.3,
+//     shadowRadius: 5,
+//   },
+//   logoutText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+// });
+
+// export default ProfileScreen;
+
+
+// import React, { useEffect } from "react";
+// import {
+//   ImageBackground,
+//   KeyboardAvoidingView,
+//   ScrollView,
+//   StyleSheet,
+//   Text,
+//   View,
+//   Image,
+//   Platform,
+//   SafeAreaView,
+//   TouchableOpacity,
+//   Alert,
+// } from "react-native";
+// import { FontAwesome } from "@expo/vector-icons";
+// import { useSelector, useDispatch } from "react-redux";
+// import { selectUserInfo, logout } from "./calculatorSlice"; // ✅ add logout action
+
+// const ProfileScreen = () => {
+//   const userInfo = useSelector(selectUserInfo);
+//   const dispatch = useDispatch();
+
+//   // ✅ Console log full user data once screen loads or when userInfo changes
+//   useEffect(() => {
+//     if (userInfo) {
+//       console.log("🔎 Full User Data:", JSON.stringify(userInfo, null, 2));
+//     } else {
+//       console.log("⚠️ No user data found");
+//     }
+//   }, [userInfo]);
+
+//   const handleLogout = () => {
+//     Alert.alert("Logout", "Are you sure you want to logout?", [
+//       { text: "Cancel", style: "cancel" },
+//       { text: "Logout", style: "destructive", onPress: () => dispatch(logout()) },
+//     ]);
+//   };
+
+//   // Fields to display
+//   const fields = [
+//     { label: "User Name", value: userInfo?.userName },
+//     { label: "Mobile Number", value: userInfo?.mobileNumber },
+//     { label: "Email", value: userInfo?.email },
+//     { label: "Account Type", value: userInfo?.type },
+//     { label: "PAN Number", value: userInfo?.panNumber },
+//     { label: "Aadhar Number", value: userInfo?.aadharNumber },
+//     { label: "Created At", value: userInfo?.createdAt },
+//     { label: "Updated At", value: userInfo?.updatedAt },
+//   ].filter((item) => item.value);
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ImageBackground
+//         source={require("../../assets/images/Pure Prakriti bg img.jpg")}
+//         resizeMode="cover"
+//         style={styles.imageBackground}
+//       >
+//         <View style={styles.overlay} />
+
+//         {/* Header */}
+//         <View style={styles.headerContainer}>
+//           <Text style={styles.headerText}>Profile</Text>
+//         </View>
+
+//         {/* Content */}
+//         <KeyboardAvoidingView
+//           behavior={Platform.OS === "ios" ? "padding" : undefined}
+//           style={styles.contentContainer}
+//         >
+//           <ScrollView contentContainerStyle={styles.scrollContent}>
+//             {/* Profile Card */}
+//             <View style={styles.card}>
+//               <View style={styles.avatarContainer}>
+//                 {userInfo?.profileImage?.[0] ? (
+//                   <Image
+//                     source={{ uri: userInfo.profileImage[0] }}
+//                     style={styles.avatarImage}
+//                   />
+//                 ) : (
+//                   <FontAwesome name="user-o" size={40} color="black" />
+//                 )}
+//               </View>
+//               <Text style={styles.nameText}>
+//                 {userInfo?.userName || "Name"}
+//               </Text>
+//               <Text style={styles.mobileText}>
+//                 {userInfo?.mobileNumber
+//                   ? `No. :- ${userInfo.mobileNumber}`
+//                   : "Mobile Number"}
+//               </Text>
+//             </View>
+
+//             {/* Dynamic Info Cards */}
+//             {fields.map((item, index) => (
+//               <View key={index} style={styles.card}>
+//                 <Text style={styles.labelText}>{item.label}</Text>
+//                 <Text style={styles.infoText}>{item.value}</Text>
+//               </View>
+//             ))}
+
+//             {/* Logout Button */}
+//             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+//               <Text style={styles.logoutText}>Logout</Text>
+//             </TouchableOpacity>
+//           </ScrollView>
+//         </KeyboardAvoidingView>
+//       </ImageBackground>
+//     </SafeAreaView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: "#f0f0f0" },
+//   imageBackground: { flex: 1, alignItems: "center" },
+//   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(247, 238, 243, 0.6)" },
+//   headerContainer: {
+//     width: "100%",
+//     height: "15%",
+//     backgroundColor: "#006400",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     borderBottomLeftRadius: 20,
+//     borderBottomRightRadius: 20,
+//     elevation: 5,
+//     shadowColor: "#000",
+//     shadowOpacity: 0.3,
+//     shadowRadius: 6,
+//     shadowOffset: { width: 0, height: 3 },
+//   },
+//   headerText: { color: "#fff", fontSize: 26, fontWeight: "bold", letterSpacing: 1 },
+//   contentContainer: { flex: 1, width: "100%", marginTop: 20, paddingHorizontal: 20 },
+//   scrollContent: { alignItems: "center", paddingBottom: 60 },
+//   card: {
+//     width: "85%",
+//     backgroundColor: "#fff",
+//     borderRadius: 20,
+//     paddingVertical: 20,
+//     paddingHorizontal: 15,
+//     marginVertical: 10,
+//     alignItems: "center",
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 6 },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 10,
+//     elevation: 10,
+//   },
+//   avatarContainer: {
+//     backgroundColor: "#fff",
+//     padding: 20,
+//     borderRadius: 50,
+//     marginBottom: 15,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 6,
+//     elevation: 8,
+//   },
+//   avatarImage: { width: 60, height: 60, borderRadius: 30 },
+//   nameText: { fontSize: 22, fontWeight: "bold", color: "#333", marginBottom: 5 },
+//   mobileText: { fontSize: 18, color: "#666" },
+//   labelText: { fontSize: 16, color: "#888", marginBottom: 5 },
+//   infoText: { fontSize: 18, fontWeight: "500", color: "#333" },
+//   logoutButton: {
+//     marginTop: 20,
+//     backgroundColor: "#b22222",
+//     paddingVertical: 15,
+//     paddingHorizontal: 40,
+//     borderRadius: 30,
+//     elevation: 6,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 3 },
+//     shadowOpacity: 0.3,
+//     shadowRadius: 5,
+//   },
+//   logoutText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+// });
+
+// export default ProfileScreen;
+
+
+// import React from "react";
+// import {
+//   ImageBackground,
+//   KeyboardAvoidingView,
+//   ScrollView,
+//   StyleSheet,
+//   Text,
+//   View,
+//   Image,
+//   Platform,
+//   SafeAreaView,
+//   TouchableOpacity,
+//   Alert,
+// } from "react-native";
+// import { FontAwesome } from "@expo/vector-icons";
+// import { useSelector, useDispatch } from "react-redux";
+// import { selectUserInfo, logout } from "./calculatorSlice"; // ✅ add logout action
+
+// const ProfileScreen = () => {
+//   const userInfo = useSelector(selectUserInfo);
+//   const dispatch = useDispatch();
+
+//   const handleLogout = () => {
+//     Alert.alert("Logout", "Are you sure you want to logout?", [
+//       { text: "Cancel", style: "cancel" },
+//       { text: "Logout", style: "destructive", onPress: () => dispatch(logout()) },
+//     ]);
+//   };
+
+//   // Fields to display (you can add more depending on API)
+//   const fields = [
+//     { label: "User Name", value: userInfo?.userName },
+//     { label: "Mobile Number", value: userInfo?.mobileNumber },
+//     { label: "Email", value: userInfo?.email },
+//     { label: "Account Type", value: userInfo?.type },
+//     { label: "PAN Number", value: userInfo?.panNumber },
+//     { label: "Aadhar Number", value: userInfo?.aadharNumber },
+//     { label: "Created At", value: userInfo?.createdAt },
+//     { label: "Updated At", value: userInfo?.updatedAt },
+//   ].filter((item) => item.value); // remove empty/null values
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ImageBackground
+//         source={require("../../assets/images/Pure Prakriti bg img.jpg")}
+//         resizeMode="cover"
+//         style={styles.imageBackground}
+//       >
+//         {/* Overlay */}
+//         <View style={styles.overlay} />
+
+//         {/* Header */}
+//         <View style={styles.headerContainer}>
+//           <Text style={styles.headerText}>Profile</Text>
+//         </View>
+
+//         {/* Main Content */}
+//         <KeyboardAvoidingView
+//           behavior={Platform.OS === "ios" ? "padding" : undefined}
+//           style={styles.contentContainer}
+//         >
+//           <ScrollView contentContainerStyle={styles.scrollContent}>
+//             {/* Profile Card */}
+//             <View style={styles.card}>
+//               <View style={styles.avatarContainer}>
+//                 {userInfo?.profileImage?.[0] ? (
+//                   <Image
+//                     source={{ uri: userInfo.profileImage[0] }}
+//                     style={styles.avatarImage}
+//                   />
+//                 ) : (
+//                   <FontAwesome name="user-o" size={40} color="black" />
+//                 )}
+//               </View>
+//               <Text style={styles.nameText}>
+//                 {userInfo?.userName || "Name"}
+//               </Text>
+//               <Text style={styles.mobileText}>
+//                 {userInfo?.mobileNumber
+//                   ? `No. :- ${userInfo.mobileNumber}`
+//                   : "Mobile Number"}
+//               </Text>
+//             </View>
+
+//             {/* Dynamic Info Cards */}
+//             {fields.map((item, index) => (
+//               <View key={index} style={styles.card}>
+//                 <Text style={styles.labelText}>{item.label}</Text>
+//                 <Text style={styles.infoText}>{item.value}</Text>
+//               </View>
+//             ))}
+
+//             {/* Logout Button */}
+//             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+//               <Text style={styles.logoutText}>Logout</Text>
+//             </TouchableOpacity>
+//           </ScrollView>
+//         </KeyboardAvoidingView>
+//       </ImageBackground>
+//     </SafeAreaView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: "#f0f0f0" },
+//   imageBackground: { flex: 1, alignItems: "center" },
+//   overlay: {
+//     ...StyleSheet.absoluteFillObject,
+//     backgroundColor: "rgba(247, 238, 243, 0.6)",
+//   },
+//   headerContainer: {
+//     width: "100%",
+//     height: "15%",
+//     backgroundColor: "#006400",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     borderBottomLeftRadius: 20,
+//     borderBottomRightRadius: 20,
+//     elevation: 5,
+//     shadowColor: "#000",
+//     shadowOpacity: 0.3,
+//     shadowRadius: 6,
+//     shadowOffset: { width: 0, height: 3 },
+//   },
+//   headerText: {
+//     color: "#fff",
+//     fontSize: 26,
+//     fontWeight: "bold",
+//     letterSpacing: 1,
+//   },
+//   contentContainer: {
+//     flex: 1,
+//     width: "100%",
+//     marginTop: 20,
+//     paddingHorizontal: 20,
+//   },
+//   scrollContent: { alignItems: "center", paddingBottom: 60 },
+//   card: {
+//     width: "85%",
+//     backgroundColor: "#fff",
+//     borderRadius: 20,
+//     paddingVertical: 20,
+//     paddingHorizontal: 15,
+//     marginVertical: 10,
+//     alignItems: "center",
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 6 },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 10,
+//     elevation: 10,
+//   },
+//   avatarContainer: {
+//     backgroundColor: "#fff",
+//     padding: 20,
+//     borderRadius: 50,
+//     marginBottom: 15,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 6,
+//     elevation: 8,
+//   },
+//   avatarImage: { width: 60, height: 60, borderRadius: 30 },
+//   nameText: { fontSize: 22, fontWeight: "bold", color: "#333", marginBottom: 5 },
+//   mobileText: { fontSize: 18, color: "#666" },
+//   labelText: { fontSize: 16, color: "#888", marginBottom: 5 },
+//   infoText: { fontSize: 18, fontWeight: "500", color: "#333" },
+
+//   logoutButton: {
+//     marginTop: 20,
+//     backgroundColor: "#b22222",
+//     paddingVertical: 15,
+//     paddingHorizontal: 40,
+//     borderRadius: 30,
+//     elevation: 6,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 3 },
+//     shadowOpacity: 0.3,
+//     shadowRadius: 5,
+//   },
+//   logoutText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+// });
+
+// export default ProfileScreen;
+
+
+// import React from 'react';
+// import {
+//   ImageBackground,
+//   KeyboardAvoidingView,
+//   ScrollView,
+//   StyleSheet,
+//   Text,
+//   View,
+// } from 'react-native';
+// import { FontAwesome } from '@expo/vector-icons';
+// import { useSelector } from 'react-redux';
+// import { selectUserInfo } from './calculatorSlice';
+
+// const ProfileScreen = () => {
+//   const userInfo = useSelector(selectUserInfo);
+
+//   return (
+//     <View style={styles.container}>
+//       <ImageBackground
+//         source={require('../../assets/images/Pure Prakriti bg img.jpg')}
+//         resizeMode="cover"
+//         style={styles.imageBackground}
+//       >
+//         {/* Overlay */}
+//         <View style={styles.overlay} />
+
+//         {/* Header */}
+//         <View style={styles.headerContainer}>
+//           <Text style={styles.headerText}>Profile</Text>
+//         </View>
+
+//         {/* Main Content */}
+//         <KeyboardAvoidingView behavior="padding" style={styles.contentContainer}>
+//           <ScrollView contentContainerStyle={styles.scrollContent}>
+//             {/* Profile Card */}
+//             <View style={styles.card}>
+//               <View style={styles.avatarContainer}>
+//                 <FontAwesome name="user-o" size={40} color="black" />
+//               </View>
+//               <Text style={styles.nameText}>{userInfo ? userInfo.userName : 'Name'}</Text>
+//               <Text style={styles.mobileText}>
+//                 {userInfo ? `No. :- ${userInfo.mobileNumber}` : 'Mobile Number'}
+//               </Text>
+//             </View>
+
+//             {/* Optional Email / Additional Info */}
+//             {userInfo?.email && (
+//               <View style={styles.card}>
+//                 <Text style={styles.labelText}>Email</Text>
+//                 <Text style={styles.infoText}>{userInfo.email}</Text>
+//               </View>
+//             )}
+//           </ScrollView>
+//         </KeyboardAvoidingView>
+//       </ImageBackground>
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#f0f0f0',
+//   },
+//   imageBackground: {
+//     flex: 1,
+//     alignItems: 'center',
+//   },
+//   overlay: {
+//     ...StyleSheet.absoluteFillObject,
+//     backgroundColor: 'rgba(247, 238, 243, 0.6)',
+//   },
+//   headerContainer: {
+//     width: '100%',
+//     height: '15%',
+//     backgroundColor: '#006400',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     borderBottomLeftRadius: 20,
+//     borderBottomRightRadius: 20,
+//     elevation: 5,
+//     shadowColor: '#000',
+//     shadowOpacity: 0.3,
+//     shadowRadius: 6,
+//     shadowOffset: { width: 0, height: 3 },
+//   },
+//   headerText: {
+//     color: '#fff',
+//     fontSize: 26,
+//     fontWeight: 'bold',
+//     letterSpacing: 1,
+//   },
+//   contentContainer: {
+//     flex: 1,
+//     width: '100%',
+//     marginTop: 20,
+//     paddingHorizontal: 20,
+//   },
+//   scrollContent: {
+//     alignItems: 'center',
+//     paddingBottom: 40,
+//   },
+//   card: {
+//     width: '85%',
+//     backgroundColor: '#fff',
+//     borderRadius: 20,
+//     paddingVertical: 20,
+//     paddingHorizontal: 15,
+//     marginVertical: 15,
+//     alignItems: 'center',
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 6 },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 10,
+//     elevation: 10,
+//   },
+//   avatarContainer: {
+//     backgroundColor: '#fff',
+//     padding: 20,
+//     borderRadius: 50,
+//     marginBottom: 15,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 6,
+//     elevation: 8,
+//   },
+//   nameText: {
+//     fontSize: 22,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 5,
+//   },
+//   mobileText: {
+//     fontSize: 18,
+//     color: '#666',
+//   },
+//   labelText: {
+//     fontSize: 16,
+//     color: '#888',
+//     marginBottom: 5,
+//   },
+//   infoText: {
+//     fontSize: 18,
+//     fontWeight: '500',
+//     color: '#333',
+//   },
+// });
+
+// export default ProfileScreen;
 
 
 // import React, { useState } from 'react';

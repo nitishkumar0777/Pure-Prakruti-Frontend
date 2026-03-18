@@ -3,6 +3,9 @@
     "production": {
       "android": {
         "buildType": "app-bundle"
+      },
+      "env": {
+        "NODE_ENV": "production"
       }
     },
     "preview": {
@@ -16,7 +19,8 @@
       }
     },
     "preview3": {
-      "developmentClient": true
+      "developmentClient": true,
+      "distribution": "internal"
     },
     "preview4": {
       "distribution": "internal"
