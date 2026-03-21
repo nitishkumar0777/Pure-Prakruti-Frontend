@@ -9,7 +9,7 @@
 
 //   try {
 //     const response = await fetch(
-//       `http://192.168.1.2:4500//api/vehicle/findCO2Emission`,
+//       `http://192.168.1.8:4500//api/vehicle/findCO2Emission`,
 //       {
 //         method: "POST",
 //         body: JSON.stringify(info),
@@ -43,7 +43,7 @@ export async function calculateResult(info) {
     console.log("Sending request to server...");
 
     const response = await fetch(
-      `http://192.168.1.2:4500/api/vehicle/findCO2Emission`,
+      `http://192.168.1.8:4500/api/vehicle/findCO2Emission`,
       {
         method: "POST",
         body: JSON.stringify(info),
@@ -71,7 +71,7 @@ export async function calculateResult(info) {
 
 export async function login(loginInfo) {
   try {
-    const response = await fetch(`http://192.168.1.2:4500/api/auth/login`, {
+    const response = await fetch(`http://192.168.1.8:4500/api/auth/login`, {
       method: "POST",
       body: JSON.stringify(loginInfo),
       headers: { "Content-Type": "application/json" },
@@ -91,7 +91,7 @@ export async function login(loginInfo) {
 
 export async function signup(signupInfo) {
   try {
-    const response = await fetch(`http://192.168.1.2:4500/api/auth/signup`, {
+    const response = await fetch(`http://192.168.1.8:4500/api/auth/signup`, {
       method: "POST",
       body: JSON.stringify(signupInfo),
       headers: { "Content-Type": "application/json" },
@@ -111,7 +111,7 @@ export async function signup(signupInfo) {
 
 export async function verifyOtp(otpInfo) {
   try {
-    const response = await fetch(`http://192.168.1.2:4500/api/otp/verify`, {
+    const response = await fetch(`http://192.168.1.8:4500/api/otp/verify`, {
       method: "POST",
       body: JSON.stringify(otpInfo),
       headers: { "Content-Type": "application/json" },
@@ -131,7 +131,7 @@ export async function verifyOtp(otpInfo) {
 
 export async function sendNumber(numberInfo) {
   try {
-    const response = await fetch(`http://192.168.1.2:4500/api/otp/send`, {
+    const response = await fetch(`http://192.168.1.8:4500/api/otp/send`, {
       method: "POST",
       body: JSON.stringify(numberInfo),
       headers: { "Content-Type": "application/json" },
@@ -154,7 +154,7 @@ export async function sendNumber(numberInfo) {
 // ==========================
 // export async function generatePdf({ userId, id, html }) {
 //   try {
-//     const response = await fetch(`http://192.168.1.2:4500//api/vehicle/savePdfFromFrontend`, {
+//     const response = await fetch(`http://192.168.1.8:4500//api/vehicle/savePdfFromFrontend`, {
 //       method: "POST",
 //       headers: { "Content-Type": "application/json" },
 //       body: JSON.stringify({ userId, id, html }),
@@ -176,7 +176,7 @@ export async function sendNumber(numberInfo) {
 
 export async function generatePdf({ userId, id, html }) {
   try {
-    const response = await fetch(`http://192.168.1.2:4500/api/vehicle/savePdfFromFrontend`, {
+    const response = await fetch(`http://192.168.1.8:4500/api/vehicle/savePdfFromFrontend`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, id, html }),
@@ -208,7 +208,7 @@ export async function generatePdf({ userId, id, html }) {
 //       }
 
 //       const response = await fetch(
-//         `http://192.168.1.2:4500//api/vehicle/findCO2Emission`,
+//         `http://192.168.1.8:4500//api/vehicle/findCO2Emission`,
 //         {
 //           method: "POST",
 //           body: JSON.stringify(info),
@@ -232,7 +232,7 @@ export async function generatePdf({ userId, id, html }) {
 // }
 
 // export async function login(loginInfo) {
-//   const response = await fetch(`http://192.168.1.2:4500//api/auth/login`, {
+//   const response = await fetch(`http://192.168.1.8:4500//api/auth/login`, {
 //     method: "POST",
 //     body: JSON.stringify(loginInfo),
 //     headers: { "Content-Type": "application/json" },
@@ -252,7 +252,7 @@ export async function generatePdf({ userId, id, html }) {
 // export function signup(signupInfo) {
 //   return new Promise(async (resolve, reject) => {
 //     try{
-//     const response = await fetch(`http://192.168.1.2:4500//api/auth/signup`, {
+//     const response = await fetch(`http://192.168.1.8:4500//api/auth/signup`, {
 //       method: "POST",
 //       body: JSON.stringify(signupInfo),
 //       headers: { "content-type": "application/json" },
@@ -274,7 +274,7 @@ export async function generatePdf({ userId, id, html }) {
 // export function verifyOtp(otp) {
 //   return new Promise(async (resolve, reject) => {
 //     try{
-//     const response = await fetch(`http://192.168.1.2:4500//api/otp/verify`, {
+//     const response = await fetch(`http://192.168.1.8:4500//api/otp/verify`, {
 //       method: "POST",
 //       body: JSON.stringify(otp),
 //       headers: { "content-type": "application/json" },
@@ -295,7 +295,7 @@ export async function generatePdf({ userId, id, html }) {
 // export function sendNumber(number) {
 //   return new Promise(async (resolve, reject) => {
 //     try{
-//     const response = await fetch(`http://192.168.1.2:4500//api/otp/send`, {
+//     const response = await fetch(`http://192.168.1.8:4500//api/otp/send`, {
 //       method: "POST",
 //       body: JSON.stringify(number),
 //       headers: { "content-type": "application/json" },
@@ -315,7 +315,7 @@ export async function generatePdf({ userId, id, html }) {
 
 // export async function generatePdf(userId, id) {
 //   try {
-//     const API_URL = "http://192.168.1.2:4500//api/vehicle/generatePdf";
+//     const API_URL = "http://192.168.1.8:4500//api/vehicle/generatePdf";
 //     const response = await fetch(API_URL, {
 //       method: "POST",
 //       headers: { "Content-Type": "application/json" },
@@ -345,7 +345,7 @@ export async function generatePdf({ userId, id, html }) {
 // export function generatePdf(userId, id) {
 //   return new Promise(async (resolve, reject) => {
 //     try {
-//       const response = await fetch('http://192.168.1.2:4500//api/vehicle/generatePdf', {
+//       const response = await fetch('http://192.168.1.8:4500//api/vehicle/generatePdf', {
 //         method: 'POST',
 //         body: JSON.stringify({ userId, id }),
 //         headers: { 'Content-Type': 'application/json' },

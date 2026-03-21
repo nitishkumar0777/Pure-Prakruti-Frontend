@@ -25,6 +25,11 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
       ],
+       "config": {
+    "googleMaps": {
+      "apiKey": "AIzaSyAI0jFdBsZoRP00RGq050nfe24aSfj1mwo"
+    }
+  },
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/pureprakruti.png",
         "backgroundColor": "#ffffff"

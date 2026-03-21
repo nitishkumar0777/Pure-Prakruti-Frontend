@@ -19,7 +19,7 @@ import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { loginAsync, selectIsAuthenticated } from './calculatorSlice';
+import { loginAsync, selectIsAuthenticated, selectUserInfo } from './calculatorSlice';
 
 const phoneRegex = /^\d{10}$/;
 const signUpSchema = yup.object().shape({
@@ -41,6 +41,7 @@ const App = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const error = useSelector((state) => state.calculator.error);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const userInfo = useSelector(selectUserInfo);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -56,15 +57,22 @@ const App = () => {
   }, []);
 
 useEffect(() => {
-  if (isAuthenticated) {
+  if (isAuthenticated && userInfo) {
     setIsLoading(false);
-    navigation.navigate('Calculator');
-  } else if (error) {
+    const hasVehicle = !!(userInfo?.personalVehicle?.vehicleNumber);
+    console.log('hasVehicle:', hasVehicle);
+    navigation.navigate(hasVehicle ? 'Dashboard' : 'Calculator');
+  }
+}, [isAuthenticated, userInfo]);
+
+useEffect(() => {
+  // 👇 sirf tab fire ho jab authenticated nahi hai
+  if (!isAuthenticated && error) {
     setIsLoading(false);
     const errorMsg = typeof error === 'string' ? error : JSON.stringify(error);
     Alert.alert('Error', errorMsg);
   }
-}, [isAuthenticated, error]);
+}, [error, isAuthenticated]); // 👈 isAuthenticated guard add kiya
 
 
 const handleSubmit = async (values) => {

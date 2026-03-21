@@ -222,6 +222,7 @@ const calculatorSlice = createSlice({
         state.status = 'idle';
         state.isAuthenticated = true;
         state.userInfo = action.payload?.data || action.payload;
+        state.error = null;
         state.userExist = true;
       })
       .addCase(loginAsync.rejected, (state, action) => {
@@ -398,7 +399,7 @@ export default calculatorSlice.reducer;
 //   'calculator/generatePdf',
 //   async ({ userId, id }, { rejectWithValue }) => {
 //     try {
-//       const response = await fetch(`http://192.168.1.2:4500/api/vehicle/generatePdf`, {
+//       const response = await fetch(`http://192.168.1.8:4500/api/vehicle/generatePdf`, {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify({ userId, id }),
